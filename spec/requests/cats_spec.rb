@@ -6,7 +6,7 @@ RSpec.describe "Cats", type: :request do
       Cat.create(
         name: 'Nova',
         age: 2,
-        enjoys: 'sleeping',
+        enjoys: 'sleeping on the couch',
         image: 'https://as2.ftcdn.net/v2/jpg/00/77/51/81/1000_F_77518136_F88I0v3R2mZsKEgxxXMc4iqXlOjK8OLE.jpg'
       )
 
@@ -24,7 +24,7 @@ RSpec.describe "Cats", type: :request do
           cat:{
             name: "Stevie",
             age: 3,
-            enjoys: "hiding",
+            enjoys: "hiding on the couch",
             image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
           }
         }
@@ -47,7 +47,7 @@ RSpec.describe "Cats", type: :request do
           cat:{
             name: "Stevie",
             age: 3,
-            enjoys: "hiding",
+            enjoys: "hiding on the couch",
             image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
           }
         }
@@ -97,5 +97,174 @@ RSpec.describe "Cats", type: :request do
       end
     end
 
+    describe "cannot create a cat without valid attributes" do 
+     it "doesn't create a cat without a name" do
+      cat_params = {
+        cat: {
+          age: 2,
+          enjoys: "hiding under the couch",
+          image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      expect(response).to have_http_status 422
+      cat = JSON.parse(response.body)
+      expect(cat['name']).to include "can't be blank"
+    end 
+
+    it "doesn't create a cat without an age" do
+      cat_params = {
+        cat: {
+          name: 'Stevie',
+          enjoys: "hiding under the couch",
+          image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      expect(response).to have_http_status 422
+      cat = JSON.parse(response.body)
+      expect(cat['age']).to include "can't be blank"
+  end
+
+    it "doesn't create a cat without an enjoys description" do
+      cat_params = {
+        cat: {
+          name: 'Stevie',
+          age: 2,
+          image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      expect(response).to have_http_status 422
+      cat = JSON.parse(response.body)
+      expect(cat['enjoys']).to include "can't be blank"
+  end 
+
+    it "doesn't create a cat without an image" do
+      cat_params = {
+        cat: {
+          name: 'Stevie',
+          age: 2,
+          enjoys: 'hiding under the couch'
+        }
+      }
+      post '/cats', params: cat_params
+      expect(response).to have_http_status 422
+      cat = JSON.parse(response.body)
+      expect(cat['image']).to include "can't be blank"
+    end 
+  end
+
+  describe "cannot update a cat without valid attributes" do 
+    it "doesn't update a cat without a name" do
+     cat_params = {
+       cat: {
+         name: 'Stevie',
+         age: 2,
+         enjoys: "hiding under the couch",
+         image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+       }
+     }
+     post '/cats', params: cat_params
+     cat = Cat.first
+
+     cat_params_update ={
+      cat:{
+        name: '',
+        age: 5,
+        enjoys: "eating a lot",
+        image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+      }
+    }
+    patch "/cats/#{cat.id}", params: cat_params_update
+    expect(response).to have_http_status 422
+    # cat = Cat.first
+    cat = JSON.parse(response.body)
+    expect(cat['name']).to include "can't be blank"
+  end 
+
+    it "doesn't update a cat without an age" do
+      cat_params = {
+        cat: {
+          name: 'Stevie',
+          age: 2,
+          enjoys: "hiding under the couch",
+          image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      cat = Cat.first
+ 
+      cat_params_update ={
+       cat:{
+         name: 'Stevie',
+         age: '',
+         enjoys: "eating a lot",
+         image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+       }
+     }
+      patch "/cats/#{cat.id}", params: cat_params_update
+      expect(response).to have_http_status 422
+      cat = JSON.parse(response.body)
+      expect(cat['age']).to include "can't be blank"
+    end 
+ 
+     it "doesn't update a cat without an enjoys description" do
+      cat_params = {
+        cat: {
+          name: 'Stevie',
+          age: 2,
+          enjoys: "hiding under the couch",
+          image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      cat = Cat.first
+ 
+      cat_params_update ={
+       cat:{
+         name: 'Stevie',
+         age: 5,
+         enjoys: "",
+         image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+       }
+     }
+     patch "/cats/#{cat.id}", params: cat_params_update
+     expect(response).to have_http_status 422
+     cat = JSON.parse(response.body)
+     expect(cat['enjoys']).to include "can't be blank"
+     end  
+
+     it "doesn't update a cat without an image" do
+      cat_params = {
+        cat: {
+          name: 'Stevie',
+          age: 2,
+          enjoys: "hiding under the couch",
+          image: 'https://th-thumbnailer.cdn-si-edu.com/bgmkh2ypz03IkiRR50I-UMaqUQc=/1000x750/filters:no_upscale():focal(1061x707:1062x708)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer_public/55/95/55958815-3a8a-4032-ac7a-ff8c8ec8898a/gettyimages-1067956982.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      cat = Cat.first
+ 
+      cat_params_update ={
+       cat:{
+         name: 'Stevie',
+         age: 5,
+         enjoys: "eating a lot",
+         image: ''
+       }
+     }
+     patch "/cats/#{cat.id}", params: cat_params_update
+     expect(response).to have_http_status 422
+     cat = JSON.parse(response.body)
+     expect(cat['image']).to include "can't be blank"
+     end 
+  end
 end
+
+
+
+
+
 
