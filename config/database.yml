@@ -81,6 +81,4 @@ test:
 #
 production:
   <<: *default
-  database: cat_tinder_backened_production
-  username: cat_tinder_backened
-  password: <%= ENV["CAT_TINDER_BACKENED_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>

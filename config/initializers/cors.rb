@@ -5,10 +5,10 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
     allow do
-      origins '*'  # <- change this to allow requests from any domain while in development.
-  
+      origins 'http://localhost:3001'
       resource '*',
-        headers: :any,
+        headers: ["Authorization"],
+        expose: ["authentication"],
         methods: [:get, :post, :put, :patch, :delete, :options, :head]
     end
   end
